@@ -1,7 +1,38 @@
 from flask import Flask, render_template, request, redirect
 import sqlite3
+import threading
+from queue import Queue
+
 
 app = Flask(__name__)
+
+class SQLiteConnectionPool:
+    def __init__(self, max_connections=5):
+        self.max_connections = max_connections
+        self.connections = Queue(maxsize=max_connections)
+        for _ in range(max_connections):
+            self.connections.put(self._create_connection())
+
+    def _create_connection(self):
+        return sqlite3.connect("motorcycle_log.db")
+
+    def get_connection(self):
+        return self.connections.get()
+
+    def release_connection(self, connection):
+        self.connections.put(connection)
+
+connection_pool = SQLiteConnectionPool()
+
+def get_cursor():
+    connection = connection_pool.get_connection()
+    return connection.cursor()
+
+def release_cursor(cursor):
+    connection = cursor.connection
+    cursor.close()
+    connection_pool.release_connection(connection)
+
 
 # Database initialization and connection
 conn = sqlite3.connect("motorcycle_log.db")
