@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Motorcycle Repair Log</title>
+    <link rel="stylesheet" type="text/css" href="static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Motorcycle Repair Log</h1>
+        
+        <!-- Add User Form -->
+        <form id="userForm" action="/add_user" method="post">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <button type="submit">Add User</button>
+        </form>
+        
+        <!-- Add Motorcycle Form -->
+        <form id="motorcycleForm" action="/add_motorcycle" method="post">
+            <label for="user_id">User:</label>
+            <select id="user_id" name="user_id" required>
+                <!-- Populate user options from the database -->
+            </select>
+            <label for="brand">Brand:</label>
+            <input type="text" id="brand" name="brand" required>
+            <label for="model">Model:</label>
+            <input type="text" id="model" name="model" required>
+            <button type="submit">Add Motorcycle</button>
+        </form>
+        
+        <!-- Add Repair Form -->
+        <form id="repairForm" action="/add_repair" method="post">
+            <label for="motorcycle_id">Motorcycle:</label>
+            <select id="motorcycle_id" name="motorcycle_id" required>
+                <!-- Populate motorcycle options from the database -->
+            </select>
+            <label for="date">Date:</label>
+            <input type="date" id="date" name="date" required>
+            <label for="particulars">Particulars:</label>
+            <input type="text" id="particulars" name="particulars" required>
+            <label for="cost">Cost:</label>
+            <input type="number" id="cost" name="cost" step="0.01" required>
+            <button type="submit">Add Repair</button>
+        </form>
+    </div>
+    <script src="static/script.js"></script>
+</body>
+</html>
