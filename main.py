@@ -1,11 +1,11 @@
 from flask import Flask, render_template, request, redirect
 import sqlite3
-import threading
 from queue import Queue
-
+import threading
 
 app = Flask(__name__)
 
+# SQLite Connection Pool
 class SQLiteConnectionPool:
     def __init__(self, max_connections=5):
         self.max_connections = max_connections
@@ -24,19 +24,14 @@ class SQLiteConnectionPool:
 
 connection_pool = SQLiteConnectionPool()
 
-def get_cursor():
+# Helper Functions
+def execute_query(query, *args):
     connection = connection_pool.get_connection()
-    return connection.cursor()
-
-def release_cursor(cursor):
-    connection = cursor.connection
-    cursor.close()
+    cursor = connection.cursor()
+    cursor.execute(query, args)
+    connection.commit()
     connection_pool.release_connection(connection)
-
-
-# Database initialization and connection
-conn = sqlite3.connect("motorcycle_log.db")
-cursor = conn.cursor()
+    return cursor
 
 # Routes
 @app.route('/')
@@ -46,8 +41,8 @@ def index():
 @app.route('/add_user', methods=['POST'])
 def add_user():
     username = request.form['username']
-    cursor.execute("INSERT INTO users (username) VALUES (?)", (username,))
-    conn.commit()
+    query = "INSERT INTO users (username) VALUES (?)"
+    execute_query(query, username)
     return redirect('/')
 
 @app.route('/add_motorcycle', methods=['POST'])
@@ -55,8 +50,8 @@ def add_motorcycle():
     user_id = int(request.form['user_id'])
     brand = request.form['brand']
     model = request.form['model']
-    cursor.execute("INSERT INTO motorcycles (user_id, brand, model) VALUES (?, ?, ?)", (user_id, brand, model))
-    conn.commit()
+    query = "INSERT INTO motorcycles (user_id, brand, model) VALUES (?, ?, ?)"
+    execute_query(query, user_id, brand, model)
     return redirect('/')
 
 @app.route('/add_repair', methods=['POST'])
@@ -65,8 +60,8 @@ def add_repair():
     date = request.form['date']
     particulars = request.form['particulars']
     cost = float(request.form['cost'])
-    cursor.execute("INSERT INTO repairs (motorcycle_id, date, particulars, cost) VALUES (?, ?, ?, ?)", (motorcycle_id, date, particulars, cost))
-    conn.commit()
+    query = "INSERT INTO repairs (motorcycle_id, date, particulars, cost) VALUES (?, ?, ?, ?)"
+    execute_query(query, motorcycle_id, date, particulars, cost)
     return redirect('/')
 
 if __name__ == '__main__':
